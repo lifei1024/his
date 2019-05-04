@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.qhit.netstorage.dao.INetstorageDao">
+
+
+	<!-- 自定义结果集 -->
+	<resultMap id="BaseResultMap" type="com.qhit.netstorage.pojo.Netstorage">
+		<id property="fileid" column="fileId" javaType="java.lang.Integer"></id>
+		<result property="filename" column="fileName" javaType="java.lang.String"></result>
+		<result property="filesize" column="fileSize" javaType="java.lang.String"></result>
+		<result property="uploaddate" column="uploadDate" javaType="java.lang.String"></result>
+		<result property="uid" column="uid" javaType="java.lang.Integer"></result>
+		<association property="baseUser" javaType="com.qhit.baseUser.pojo.BaseUser">
+			<result property="cname" column="cname" javaType="java.lang.String"></result>
+		</association>
+	</resultMap>
+
+
+	<!-- 在各种标签中，id属性必须与接口中的方法名一样，id的值必须是唯一的，parameterType指查询时使用的参数类型，
+	resultType属性指明查询返回的结果集类型    -->
+
+	<sql id="Base_Column_List" >
+		fileId,fileName,fileSize,uploadDate,uid
+	</sql>
+	<select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		select
+		<include refid="Base_Column_List" />
+		from netstorage
+		where fileId = #{fileid}
+	</select>
+	<delete id="delete" parameterType="java.lang.Integer" >
+		delete from netstorage
+		where fileId = #{fileid}
+	</delete>
+	<insert id="insert" parameterType="com.qhit.netstorage.pojo.Netstorage" >
+		insert into netstorage(fileName,fileSize,uploadDate,uid)
+		values (#{filename},#{filesize},#{uploaddate},#{uid})
+	</insert>
+	<update id="updateSelective" parameterType="com.qhit.netstorage.pojo.Netstorage" >
+		update netstorage
+		<set >
+			<if test="filename != null and filename!='' " >
+				fileName = #{filename},
+			</if>
+			<if test="filesize != null and filesize!='' " >
+				fileSize = #{filesize},
+			</if>
+			<if test="uploaddate != null and uploaddate!='' " >
+				uploadDate = #{uploaddate},
+			</if>
+			<if test="uid != null and uid!='' " >
+				uid = #{uid},
+			</if>
+		</set>
+		where fileId = #{fileid}
+	</update>
+	<update id="update" parameterType="com.qhit.netstorage.pojo.Netstorage" >
+		update netstorage
+		set  fileName = #{filename}, fileSize = #{filesize}, uploadDate = #{uploaddate}, uid = #{uid}
+		where fileId = #{fileid}
+	</update>
+	<select id="findAll" resultMap="BaseResultMap" >
+		select
+		n.*,bu.cname
+		from netstorage n join base_user bu ON n.uid=bu.user_id
+	</select>
+	<select id="findByFilename" resultMap="BaseResultMap" parameterType="java.lang.String" >
+		select
+		<include refid="Base_Column_List" />
+		from netstorage
+		where fileName = #{filename}
+	</select>
+	<select id="findByFilesize" resultMap="BaseResultMap" parameterType="java.lang.String" >
+		select
+		<include refid="Base_Column_List" />
+		from netstorage
+		where fileSize = #{filesize}
+	</select>
+	<select id="findByUploaddate" resultMap="BaseResultMap" parameterType="java.lang.String" >
+		select
+		<include refid="Base_Column_List" />
+		from netstorage
+		where uploadDate = #{uploaddate}
+	</select>
+	<select id="findByUid" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		select
+		<include refid="Base_Column_List" />
+		from netstorage
+		where uid = #{uid}
+	</select>
+	<delete id="deleteBantch" parameterType="java.util.Arrays">
+		delete from netstorage where fileId in
+		<foreach collection="array" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	<select id="search" parameterType="com.qhit.netstorage.pojo.Netstorage" resultMap="BaseResultMap">
+		select * from  netstorage
+		<where >
+			<if test="filename != null and filename!='' " >
+				 and fileName = #{filename}
+			</if>
+			<if test="filesize != null and filesize!='' " >
+				 and fileSize = #{filesize}
+			</if>
+			<if test="uploaddate != null and uploaddate!='' " >
+				 and uploadDate = #{uploaddate}
+			</if>
+			<if test="uid != null and uid!='' " >
+				 and uid = #{uid}
+			</if>
+		</where>
+	</select>
+	<!--<delete id="deleteBantch" parameterType="java.util.Arrays">-->
+		<!--DELETE -->
+		<!---->
+	<!--</delete>-->
+</mapper> 
